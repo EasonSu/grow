@@ -1,0 +1,67 @@
+name: Test GitHub Actions - Get Plugin Releases
+
+on:
+  push:
+    branches:
+      - test/get-plugin-releases
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  GetPluginReleases:
+    name: Get Plugin Releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release versions from WordPress
+        id: wp-versions
+        uses: woocommerce/grow/get-plugin-releases@update/108-nodejs-v20-github-actions-get-plugin-releases-test-build
+        with:
+          slug: wordpress
+
+      - name: Get release versions from WooCommerce
+        id: wc-versions
+        uses: woocommerce/grow/get-plugin-releases@update/108-nodejs-v20-github-actions-get-plugin-releases-test-build
+        with:
+          slug: woocommerce
+
+      - name: Get release versions from Google Listings & Ads
+        id: gla-versions
+        uses: woocommerce/grow/get-plugin-releases@update/108-nodejs-v20-github-actions-get-plugin-releases-test-build
+        with:
+          slug: google-listings-and-ads
+
+      - name: Get L-3 release versions from WooCommerce including RC
+        id: wc-versions-l3-rc
+        uses: woocommerce/grow/get-plugin-releases@update/108-nodejs-v20-github-actions-get-plugin-releases-test-build
+        with:
+          slug: woocommerce
+          releases: 4
+          includeRC: true
+
+      - name: Get L-10 release versions from WooCommerce including patches
+        id: wc-versions-patches
+        uses: woocommerce/grow/get-plugin-releases@update/108-nodejs-v20-github-actions-get-plugin-releases-test-build
+        with:
+          slug: woocommerce
+          releases: 11
+          includePatches: true
+
+      - name: Get L-10 release versions from WooCommerce including RC and patches
+        id: wc-versions-l10-rc
+        uses: woocommerce/grow/get-plugin-releases@update/108-nodejs-v20-github-actions-get-plugin-releases-test-build
+        with:
+          slug: woocommerce
+          releases: 11
+          includeRC: true
+          includePatches: true
+
+      - name: Show the versions output
+        run: |
+          echo "WordPress: ${{ steps.wp-versions.outputs.versions }}"
+          echo "WooCommerce: ${{ steps.wc-versions.outputs.versions }}"
+          echo "Google Listings & Ads: ${{ steps.gla-versions.outputs.versions }}"
+          echo "WooCommerce 4 versions including RC: ${{ steps.wc-versions-l3-rc.outputs.versions }}"
+          echo "WooCommerce 11 versions including patches: ${{ steps.wc-versions-patches.outputs.versions }}"
+          echo "WooCommerce 11 versions including RC and patches: ${{ steps.wc-versions-l10-rc.outputs.versions }}"
